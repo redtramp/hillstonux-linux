@@ -165,6 +165,10 @@ struct Session {
     /// Stats forwarder (drains `data_plane::StatsEvent` into the controller's
     /// events channel). Held so we can drop it (closing the channel) on disconnect.
     stats_forwarder: Option<tokio::task::JoinHandle<()>>,
+    /// Periodic stats broadcaster: re-emits the Connected phase (byte
+    /// counters + uptime) every 2 s so the GUI's traffic display updates
+    /// without a phase transition.
+    stats_ticker: Option<tokio::task::JoinHandle<()>>,
     /// When this connection completed.
     since: Instant,
     /// Total bytes sent/received (populated by the stats forwarder).
@@ -395,6 +399,7 @@ impl Controller {
 
         // Spawn data-plane tasks.
         let (shutdown_tx, shutdown_rx) = tokio::sync::watch::channel(false);
+        let mut shutdown_for_ticker = shutdown_rx.clone();
 
         // Derive encryption algorithm from the negotiated key sizes.
         let enc_alg = if keymat.crypt_size == 0x10 {
@@ -462,6 +467,30 @@ impl Controller {
             }
         });
 
+        // Periodic stats broadcaster: the data plane reports bytes per packet
+        // and the forwarder accumulates them, but between phase transitions
+        // nothing would reach the IPC clients — the GUI's traffic counters
+        // would stay frozen at zero. Re-emit the Connected phase (bytes +
+        // uptime) every 2 s while a session exists.
+        let inner_for_ticker = self.inner.clone();
+        let events_for_ticker = self.events.clone();
+        let stats_ticker = tokio::spawn(async move {
+            let mut interval = tokio::time::interval(std::time::Duration::from_secs(2));
+            interval.tick().await; // the first tick fires immediately; skip it
+            loop {
+                tokio::select! {
+                    _ = shutdown_for_ticker.changed() => break,
+                    _ = interval.tick() => {
+                        let g = inner_for_ticker.read().await;
+                        if let Some(sess) = g.session.as_ref() {
+                            let phase = connected_phase(sess);
+                            let _ = events_for_ticker.send(VpnEvent::StateChanged { state: phase });
+                        }
+                    }
+                }
+            }
+        });
+
         let since = Instant::now();
         let session = Session {
             net,
@@ -483,6 +512,7 @@ impl Controller {
             shutdown_tx,
             data_plane_handles: Some((handle_a, handle_b)),
             stats_forwarder: Some(stats_forwarder),
+            stats_ticker: Some(stats_ticker),
             since,
             bytes_in: 0,
             bytes_out: 0,
@@ -562,6 +592,11 @@ impl Controller {
 
         // The stats forwarder sees EOF on its channel and exits on its own.
         if let Some(h) = sess.stats_forwarder.take() {
+            let _ = tokio::time::timeout(std::time::Duration::from_millis(500), h).await;
+        }
+
+        // The stats ticker exits on the shutdown signal sent above.
+        if let Some(h) = sess.stats_ticker.take() {
             let _ = tokio::time::timeout(std::time::Duration::from_millis(500), h).await;
         }
 

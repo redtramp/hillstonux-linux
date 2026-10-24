@@ -10,7 +10,7 @@
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "gui:standalone": "tauri build --debug --no-bundle",
-    "build:daemon": "TRIPLE=$(rustc -vV | sed -n 's/^host: //p') && mkdir -p src-tauri/binaries && if [ -n \"$TAURI_ENV_DEBUG\" ]; then (cd src-tauri && cargo build -p hillstonux-daemon) && cp src-tauri/target/debug/hillstonux-daemon src-tauri/binaries/hillstonux-daemon-$TRIPLE; else (cd src-tauri && cargo build --release -p hillstonux-daemon) && cp src-tauri/target/release/hillstonux-daemon src-tauri/binaries/hillstonux-daemon-$TRIPLE; fi"
+    "build:daemon": "if [ -n \"$TAURI_ENV_DEBUG\" ]; then (cd src-tauri && cargo build -p hillstonux-daemon); else (cd src-tauri && cargo build --release -p hillstonux-daemon); fi"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.4"

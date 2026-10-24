@@ -126,7 +126,10 @@ pub fn install_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
                 });
             }
             "quit" => {
-                app.exit(0);
+                let app = app.clone();
+                tauri::async_runtime::spawn(async move {
+                    quit_cleanup(app).await;
+                });
             }
             _ => {}
         })
@@ -210,4 +213,29 @@ async fn tray_toggle(app: tauri::AppHandle) -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     }
     Ok(())
+}
+
+/// Exit path from the tray "退出" menu: if the VPN is connected, ask the
+/// daemon to disconnect FIRST so it tears down TUN/routes/DNS, then quit.
+/// Without this, quitting from the tray would leave an established VPN
+/// session running in the background (the daemon is a long-lived per-user
+/// process that outlives the GUI).
+async fn quit_cleanup(app: tauri::AppHandle) {
+    let ipc = app.state::<IpcClient>();
+    let connected = match ipc.request(IpcRequestParams::State).await {
+        Ok(IpcResponse::Ok { data: Some(v), .. }) => serde_json::from_value::<VpnStateDto>(v)
+            .map(|d| matches!(d, VpnStateDto::Connected { .. }))
+            .unwrap_or(false),
+        _ => false,
+    };
+    if connected {
+        // Disconnect blocks until the daemon has restored routes/DNS and
+        // dropped the TUN; cap it so "退出" never hangs on a stuck daemon.
+        let _ = tokio::time::timeout(
+            std::time::Duration::from_secs(5),
+            ipc.request(IpcRequestParams::Disconnect),
+        )
+        .await;
+    }
+    app.exit(0);
 }

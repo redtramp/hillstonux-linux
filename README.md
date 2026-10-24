@@ -1,5 +1,7 @@
 # Hillstonux
 
+**中文版本：[README.zh-CN.md](README.zh-CN.md)**
+
 A Rust + Tauri GUI reimplementation of the **Hillstone Secure Connect** SSL
 VPN client for Linux (KDE Plasma). Drop-in replacement for the upstream
 Python [`hillstonux`](https://github.com/zCanek/hillstonux) CLI: same protocol, same server compatibility, but with
@@ -36,7 +38,6 @@ in `src-tauri/` (which is also the Cargo workspace root).
 │   ├── build.rs
 │   ├── tauri.conf.json
 │   ├── rust-toolchain.toml
-│   ├── binaries/           # sidecar output, gitignored (pnpm build:daemon)
 │   ├── capabilities/       # Tauri ACL capabilities
 │   ├── gen/schemas/        # generated ACL schemas
 │   ├── icons/
@@ -75,7 +76,7 @@ cd src-tauri && cargo build --workspace --release
 
 Or use the Tauri CLI one-liners from the repo root:
 
-- `pnpm tauri:dev` — full dev loop: builds the debug daemon sidecar, starts
+- `pnpm tauri:dev` — full dev loop: builds the debug daemon, starts
   the vite dev server (HMR on `localhost:5173`) and the GUI together.
 - `pnpm gui:standalone` — builds a self-contained debug GUI binary at
   `src-tauri/target/debug/hillstonux-gui` with the frontend bundled. Run it
