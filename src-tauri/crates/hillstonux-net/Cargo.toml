@@ -1,0 +1,17 @@
+[package]
+name = "hillstonux-net"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+hillstonux-core = { workspace = true }
+tokio = { workspace = true, features = ["net", "rt", "macros", "io-util", "process", "time", "sync", "fs"] }
+tun = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+async-trait = { workspace = true }
+tempfile = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full"] }

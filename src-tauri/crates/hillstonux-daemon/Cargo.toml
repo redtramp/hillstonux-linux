@@ -1,0 +1,34 @@
+[package]
+name = "hillstonux-daemon"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+name = "hillstonux_daemon"
+path = "src/lib.rs"
+
+[[bin]]
+name = "hillstonux-daemon"
+path = "src/main.rs"
+
+[dependencies]
+hillstonux-core = { workspace = true }
+hillstonux-net = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+tracing-appender = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+libc = { workspace = true }
+signal-hook = { workspace = true }
+signal-hook-tokio = { workspace = true }
+futures-util = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["full", "test-util"] }
+tempfile = { workspace = true }

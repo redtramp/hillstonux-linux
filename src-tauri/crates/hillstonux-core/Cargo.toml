@@ -1,0 +1,30 @@
+[package]
+name = "hillstonux-core"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+thiserror = { workspace = true }
+tracing = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+tokio = { workspace = true, features = ["net", "rt", "macros", "io-util", "time"] }
+rustls = { workspace = true }
+tokio-rustls = { workspace = true }
+webpki-roots = { workspace = true }
+rustls-pki-types = { workspace = true }
+rand = { workspace = true }
+sha1 = { workspace = true }
+aes = { workspace = true }
+cbc = { workspace = true }
+hmac = { workspace = true }
+md-5 = { workspace = true }
+des = { workspace = true }
+
+[dev-dependencies]
+hex = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+rustls-pemfile = { workspace = true }
+rcgen = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }

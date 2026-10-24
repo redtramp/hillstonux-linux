@@ -1,0 +1,88 @@
+[package]
+name = "hillstonux-gui"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Hillstonux VPN GUI client for KDE Plasma / Linux"
+
+[lib]
+name = "hillstonux_gui_lib"
+path = "src/lib.rs"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "hillstonux-gui"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { workspace = true }
+
+[dependencies]
+hillstonux-daemon = { workspace = true }
+tauri = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+keyring = { workspace = true }
+dirs = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+toml = { workspace = true }
+
+# The GUI crate is the root of the Cargo workspace. All other Rust crates
+# (protocol core, system integration, daemon, migration tool) live under
+# `crates/` in this same directory, matching the Tauri project layout where
+# the entire Rust project resides in `src-tauri/`.
+[workspace]
+resolver = "2"
+members = [
+    "crates/hillstonux-core",
+    "crates/hillstonux-net",
+    "crates/hillstonux-daemon",
+    "crates/hillstonux-migrate",
+]
+
+# Single source of truth for all dependency versions/features across the
+# workspace. Individual crates inherit via `dep = { workspace = true }`.
+[workspace.dependencies]
+# --- internal crates (paths are relative to the workspace root) ---
+hillstonux-core = { path = "crates/hillstonux-core" }
+hillstonux-net = { path = "crates/hillstonux-net" }
+hillstonux-daemon = { path = "crates/hillstonux-daemon" }
+
+# --- external crates ---
+thiserror = "2.0.21"
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "registry"] }
+tracing-appender = "0.2"
+async-trait = "0.1"
+futures-util = "0.3"
+libc = "0.2"
+rand = "0.10.3"
+sha1 = "0.11"
+aes = "0.9.3"
+cbc = "0.2.1"
+hmac = "0.13"
+md-5 = "0.11"
+des = "0.9"
+rustls = { version = "0.23", features = ["aws_lc_rs"] }
+tokio-rustls = "0.26"
+webpki-roots = "1.0.10"
+rustls-pki-types = "1"
+rustls-pemfile = "2"
+rcgen = "0.14.10"
+hex = "0.4"
+tun = "0.8.14"
+tempfile = "3"
+signal-hook = "0.4.5"
+signal-hook-tokio = { version = "0.4.0", features = ["futures-v0_3"] }
+keyring = "4.2"
+dirs = "7"
+toml = "1.1.8"
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-build = { version = "2", features = [] }

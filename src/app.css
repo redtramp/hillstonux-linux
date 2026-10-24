@@ -1,0 +1,63 @@
+:root {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: #0b1220;
+}
+
+main {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+h1 {
+  font-size: 20px;
+}
+
+.form label {
+  display: block;
+  margin: 10px 0;
+  font-size: 13px;
+  color: #333;
+}
+
+.form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  margin-top: 4px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.actions {
+  margin: 16px 0;
+}
+
+button {
+  padding: 8px 16px;
+  margin-right: 8px;
+  border: 0;
+  border-radius: 6px;
+  background: #2b6cff;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.status {
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.err {
+  color: #d33;
+}
