@@ -36,6 +36,7 @@
   },
   "bundle": {
     "active": true,
+    "externalBin": ["binaries/hillstonux-daemon"],
     "targets": ["deb"],
     "icon": [
       "icons/32x32.png",
